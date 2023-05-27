@@ -7,6 +7,7 @@ yum -y install yum-utils
 yum-config-manager --disable 'remi-php*'
 yum-config-manager --enable remi-php80
 yum install wget
+
 # Добавляем репозиторий MariaDB
 touch /etc/yum.repos.d/mariadb.repo
 echo '# MariaDB 10.6 CentOS repository list - created 2023-05-27 06:09 UTC'  >>/etc/yum.repos.d/mariadb.repo
@@ -23,10 +24,12 @@ echo 'gpgcheck = 1' >>/etc/yum.repos.d/mariadb.repo
 
 # Установка зависимостей
 yum -y install httpd curl mariadb-server mariadb-client php php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
+
 # Firewall настройка
 firewall-cmd --add-service=http --permanent
 firewall-cmd --add-service=https --permanent 
 firewall-cmd --reload
+
 # Создание базы данных и пользователя для Pterodactyl
 systemctl start mariadb
 systemctl enable mariadb
@@ -39,8 +42,10 @@ fi
 read -s -p "Введите домен который будет использовать панель (Позже нужно будет повторно написать только уже http://domain.com):" DOMAIN
 mysql -u root -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$PASS';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;" 
+
 # Установка Composer
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Скачивание и установка Pterodactyl
 mkdir -p /var/www/pterodactyl
 cd /var/www/pterodactyl
@@ -50,11 +55,13 @@ chmod -R 755 storage/* bootstrap/cache
 cp .env.example .env
 composer install --no-dev --optimize-autoloader
 php artisan key:generate --force
+
 # Настройка конфигурации и добавление данных в БД (это настроить не получиться через скрипт).
 php artisan p:environment:setup
 php artisan p:environment:database
 php artisan migrate --seed --force
 php artisan p:user:make
+
 # Настройка веб-сервера
 chown -R apache:apache /var/www/pterodactyl/*
 systemctl start httpd
@@ -71,8 +78,10 @@ echo     AllowOverride all >> /etc/httpd/conf.d/pterodactyl.conf
 echo     Require all granted >> /etc/httpd/conf.d/pterodactyl.conf
 echo   '</Directory>'  >> /etc/httpd/conf.d/pterodactyl.conf
 echo '</VirtualHost>' >> /etc/httpd/conf.d/pterodactyl.conf
+
 #Настройка CRON задачи
 echo * * * * * php /var/www/pterodactyl/artisan schedule:run >> /etc/crontab
+
 # Добавления сервиса для панели и настройка автозапуска
 touch /etc/systemd/system/pteroq.service
 echo '# Pterodactyl Queue Worker File ' >> /etc/systemd/system/pteroq.service
