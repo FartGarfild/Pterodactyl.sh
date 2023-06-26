@@ -7,6 +7,19 @@ yum -y install yum-utils
 yum-config-manager --disable 'remi-php*'
 yum-config-manager --enable remi-php80
 yum install wget
+#Переменные
+
+DOMAIN=''#Тут указать домен 
+EMAIL=''# Тут нужно указывать email пользователя, без него к сожалению никак (Он будет применяться как для автора так и для пользователя)
+PASS=$(openssl rand -base64 8) #Пароль базы данных
+PASS2=$(openssl rand -base64 8) #Пароль пользователя
+touch /var/www/pretodactyl/access.txt
+echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/access.txt
+echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
+RN=$(( ( RANDOM % 100000 ) + 1 )) #Генератор чисел
+USER="user$RN" #Сам пользователь
+echo 'Логин: $USER' >> /var/www/pterodactyl/access.txt
+echo 'Пароль пользователя $USER: ${PASS2}' >> /var/www/pterodactyl/access.txt
 
 # Добавляем репозиторий MariaDB
 touch /etc/yum.repos.d/mariadb.repo
@@ -34,12 +47,6 @@ firewall-cmd --reload
 systemctl start mariadb
 systemctl enable mariadb
 mysql -u root -e "CREATE DATABASE panel;"
-read -s -p "Введите пароль для базы данных (Стандартный 6482):" PASS
-if [ -z "$PASS" ]; then
-# Если переменная pass не определена, устанавливаем стандартное значение
-PASS="6482"
-fi
-read -s -p "Введите домен который будет использовать панель (Позже нужно будет повторно написать только уже http://domain.com):" DOMAIN
 mysql -u root -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$PASS';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;" 
 
@@ -56,11 +63,12 @@ cp .env.example .env
 composer install --no-dev --optimize-autoloader
 php artisan key:generate --force
 
-# Настройка конфигурации и добавление данных в БД (это настроить не получиться через скрипт).
-php artisan p:environment:setup
-php artisan p:environment:database
+# Настройка конфигурации и добавление данных в БД
+php artisan p:environment:setup --author=${EMAIL} --url=http://${DOMAIN} --timezone=UTC --cache=file --session=database --queue=database --settings-ui=yes --telemetry=no --no-interaction
+php artisan p:environment:database --host=127.0.0.1 --port=3306 --database=panel --username=pterodactyl --password=${PASS} --no-interaction
 php artisan migrate --seed --force
-php artisan p:user:make
+php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=yes --no-interaction
+
 
 # Настройка веб-сервера
 chown -R apache:apache /var/www/pterodactyl/*
@@ -68,7 +76,7 @@ systemctl start httpd
 systemctl enable httpd
 touch /etc/httpd/conf.d/pterodactyl.conf
 echo '<VirtualHost *:80>'  >> /etc/httpd/conf.d/pterodactyl.conf
-echo  'ServerName $DOMAIN' >> /etc/httpd/conf.d/pterodactyl.conf
+echo  'ServerName ${DOMAIN}' >> /etc/httpd/conf.d/pterodactyl.conf
 echo  DocumentRoot "/var/www/pterodactyl/public" >> /etc/httpd/conf.d/pterodactyl.conf
 echo   AllowEncodedSlashes On >> /etc/httpd/conf.d/pterodactyl.conf
 echo   php_value upload_max_filesize 100M >> /etc/httpd/conf.d/pterodactyl.conf
