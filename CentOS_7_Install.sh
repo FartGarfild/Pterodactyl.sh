@@ -1,4 +1,9 @@
 #!/bin/bash
+#Переменные которые нужно изменять
+DOMAIN=''#Тут указать домен 
+EMAIL=''# Тут нужно указывать email пользователя, без него к сожалению никак (Он будет применяться как для автора так и для пользователя)
+
+
 # Подготовка зависимостей
 yum -y update
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -8,9 +13,6 @@ yum-config-manager --disable 'remi-php*'
 yum-config-manager --enable remi-php80
 yum install wget
 #Переменные
-
-DOMAIN=''#Тут указать домен 
-EMAIL=''# Тут нужно указывать email пользователя, без него к сожалению никак (Он будет применяться как для автора так и для пользователя)
 PASS=$(openssl rand -base64 8) #Пароль базы данных
 PASS2=$(openssl rand -base64 8) #Пароль пользователя
 touch /var/www/pretodactyl/access.txt
