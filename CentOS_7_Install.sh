@@ -23,8 +23,8 @@ echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/ac
 echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
 RN=$(( ( RANDOM % 100000 ) + 1 )) #Генератор чисел
 USER="user$RN" #Сам пользователь
-echo 'Логин: $USER' >> /var/www/pterodactyl/access.txt
-echo 'Пароль пользователя $USER: ${PASS2}' >> /var/www/pterodactyl/access.txt
+echo "Логин: $USER" >> /var/www/pterodactyl/access.txt
+echo "Пароль пользователя $USER: ${PASS2}" >> /var/www/pterodactyl/access.txt
 
 # Добавляем репозиторий MariaDB
 touch /etc/yum.repos.d/mariadb.repo
