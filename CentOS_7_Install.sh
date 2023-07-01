@@ -1,8 +1,9 @@
 #!/bin/bash
 #Переменные которые нужно изменять
-DOMAIN=''#Тут указать домен 
-EMAIL=''# Тут нужно указывать email пользователя, без него к сожалению никак (Он будет применяться как для автора так и для пользователя)
-
+# Тут указать домен
+DOMAIN='' 
+# Тут нужно указывать email пользователя, без него к сожалению никак, он будет применяться как для автора так и для пользователя
+EMAIL=''
 
 # Подготовка зависимостей
 yum -y update
@@ -15,6 +16,8 @@ yum install wget
 #Переменные
 PASS=$(openssl rand -base64 8) #Пароль базы данных
 PASS2=$(openssl rand -base64 8) #Пароль пользователя
+mkdir -p /var/www/pterodactyl
+cd /var/www/pterodactyl
 touch /var/www/pretodactyl/access.txt
 echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/access.txt
 echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
@@ -56,8 +59,6 @@ mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' W
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Скачивание и установка Pterodactyl
-mkdir -p /var/www/pterodactyl
-cd /var/www/pterodactyl
 curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz
 tar -xzvf panel.tar.gz
 chmod -R 755 storage/* bootstrap/cache
@@ -68,7 +69,7 @@ php artisan key:generate --force
 # Настройка конфигурации и добавление данных в БД
 php artisan p:environment:setup --author=${EMAIL} --url=http://${DOMAIN} --timezone=UTC --cache=file --session=database --queue=database --settings-ui=yes --telemetry=no --no-interaction
 php artisan p:environment:database --host=127.0.0.1 --port=3306 --database=panel --username=pterodactyl --password=${PASS} --no-interaction
-php artisan migrate --seed --force
+php artisan migrate --seed --force --no-interaction
 php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=yes --no-interaction
 
 
