@@ -63,6 +63,7 @@ curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/downl
 tar -xzvf panel.tar.gz
 chmod -R 755 storage/* bootstrap/cache
 cp .env.example .env
+export COMPOSER_ALLOW_SUPERUSER=1
 composer install --no-dev --optimize-autoloader
 php artisan key:generate --force
 
@@ -70,7 +71,7 @@ php artisan key:generate --force
 php artisan p:environment:setup --author=${EMAIL} --url=http://${DOMAIN} --timezone=UTC --cache=file --session=database --queue=database --settings-ui=yes --telemetry=no --no-interaction
 php artisan p:environment:database --host=127.0.0.1 --port=3306 --database=panel --username=pterodactyl --password=${PASS} --no-interaction
 php artisan migrate --seed --force --no-interaction
-php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=yes --no-interaction
+php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=1 --no-interaction
 
 
 # Настройка веб-сервера
