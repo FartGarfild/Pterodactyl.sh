@@ -12,7 +12,8 @@ yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 yum -y install yum-utils
 yum-config-manager --disable 'remi-php*'
 yum-config-manager --enable remi-php80
-yum install wget
+yum install -y wget
+yum install -y openssl
 #Переменные
 PASS=$(openssl rand -base64 8) #Пароль базы данных
 PASS2=$(openssl rand -base64 8) #Пароль пользователя
