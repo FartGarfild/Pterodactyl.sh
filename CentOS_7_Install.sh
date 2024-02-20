@@ -5,15 +5,14 @@ DOMAIN=''
 # Тут нужно указывать email пользователя, без него к сожалению никак, он будет применяться как для автора так и для пользователя
 EMAIL=''
 
-# Подготовка зависимостей
+# Подготовка и Установка зависимостей
 yum -y update
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum -y install yum-utils
+yum -y install httpd yum-utils openssl wget curl mariadb-server mariadb-client php php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
 yum-config-manager --disable 'remi-php*'
 yum-config-manager --enable remi-php80
-yum install -y wget
-yum install -y openssl
+
 #Переменные
 PASS=$(openssl rand -base64 8) #Пароль базы данных
 PASS2=$(openssl rand -base64 8) #Пароль пользователя
@@ -41,8 +40,6 @@ echo '# gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d
 echo 'gpgkey = https://mirrors.xtom.de/mariadb/yum/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d/mariadb.repo
 echo 'gpgcheck = 1' >>/etc/yum.repos.d/mariadb.repo
 
-# Установка зависимостей
-yum -y install httpd curl mariadb-server mariadb-client php php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
 
 # Firewall настройка
 firewall-cmd --add-service=http --permanent
