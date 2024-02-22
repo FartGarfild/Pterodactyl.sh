@@ -52,8 +52,8 @@ firewall-cmd --reload
 systemctl start mariadb
 systemctl enable mariadb
 mysql -u root -e "CREATE DATABASE panel;"
-mysql -u root -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$PASS';"
-mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;" 
+mysql -u root -e "CREATE USER 'pterodactyl'@'localhost' IDENTIFIED BY '${PASS}';"
+mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'localhost' WITH GRANT OPTION;" 
 
 # Установка Composer
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && ln /usr/local/bin/composer /usr/bin/composer
@@ -69,9 +69,9 @@ php artisan key:generate --force
 
 # Настройка конфигурации и добавление данных в БД
 php artisan p:environment:setup --author=${EMAIL} --url=http://${DOMAIN} --timezone=UTC --cache=file --session=database --queue=database --settings-ui=yes --telemetry=no --no-interaction
-php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=pterodactyl --password=$PASS --no-interaction
+php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=pterodactyl --password=${PASS} --no-interaction
 php artisan migrate --seed --force --no-interaction
-php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=$PASS2 --admin=1 --no-interaction
+php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=1 --no-interaction
 
 
 # Настройка веб-сервера
