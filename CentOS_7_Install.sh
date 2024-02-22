@@ -11,7 +11,7 @@ yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarc
 yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 yum -y install yum-utils
 yum-config-manager --disable 'remi-php*'
-yum-config-manager --enable remi-php82
+yum-config-manager --enable remi-php81
 yum -y install httpd openssl wget curl mariadb-server mariadb-client php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
 
 #Переменные
