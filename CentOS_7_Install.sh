@@ -5,6 +5,15 @@ DOMAIN=''
 # Тут нужно указывать email пользователя, без него к сожалению никак, он будет применяться как для автора так и для пользователя
 EMAIL=''
 
+# Подготовка и Установка зависимостей
+yum -y update
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+yum -y install yum-utils
+yum-config-manager --disable 'remi-php*'
+yum-config-manager --enable remi-php81
+yum -y install httpd openssl wget curl php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
+
 # Добавляем репозиторий MariaDB
 touch /etc/yum.repos.d/mariadb.repo
 echo '# MariaDB 10.6 CentOS repository list - created 2023-05-27 06:09 UTC'  >>/etc/yum.repos.d/mariadb.repo
@@ -19,14 +28,7 @@ echo '# gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d
 echo 'gpgkey = https://mirrors.xtom.de/mariadb/yum/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d/mariadb.repo
 echo 'gpgcheck = 1' >>/etc/yum.repos.d/mariadb.repo
 
-# Подготовка и Установка зависимостей
-yum -y update
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum -y install yum-utils
-yum-config-manager --disable 'remi-php*'
-yum-config-manager --enable remi-php81
-yum -y install httpd openssl wget curl mariadb php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
+yum install -y mariadb-server
 
 #Переменные
 PASS=$(openssl rand -base64 8) #Пароль базы данных
