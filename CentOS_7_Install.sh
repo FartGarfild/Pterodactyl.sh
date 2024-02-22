@@ -69,9 +69,9 @@ php artisan key:generate --force
 
 # Настройка конфигурации и добавление данных в БД
 php artisan p:environment:setup --author=${EMAIL} --url=http://${DOMAIN} --timezone=UTC --cache=file --session=database --queue=database --settings-ui=yes --telemetry=no --no-interaction
-php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=pterodactyl --password=${PASS} --no-interaction
+php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=pterodactyl --password=$PASS --no-interaction
 php artisan migrate --seed --force --no-interaction
-php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=${PASS2} --admin=1 --no-interaction
+php artisan p:user:make --email=${EMAIL} --username=$USER --name-first=$USER --name-last=$USER --password=$PASS2 --admin=1 --no-interaction
 
 
 # Настройка веб-сервера
