@@ -5,28 +5,6 @@ DOMAIN=''
 # Тут нужно указывать email пользователя, без него к сожалению никак, он будет применяться как для автора так и для пользователя
 EMAIL=''
 
-# Подготовка и Установка зависимостей
-yum -y update
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum -y install yum-utils
-yum-config-manager --disable 'remi-php*'
-yum-config-manager --enable remi-php81
-yum -y install httpd openssl wget curl mariadb-server mariadb-client php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
-
-#Переменные
-PASS=$(openssl rand -base64 8) #Пароль базы данных
-PASS2=$(openssl rand -base64 8) #Пароль пользователя
-mkdir -p /var/www/pterodactyl
-cd /var/www/pterodactyl
-touch /var/www/pretodactyl/access.txt
-echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/access.txt
-echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
-RN=$(( ( RANDOM % 100000 ) + 1 )) #Генератор чисел
-USER="user$RN" #Сам пользователь
-echo "Логин: $USER" >> /var/www/pterodactyl/access.txt
-echo "Пароль пользователя $USER: ${PASS2}" >> /var/www/pterodactyl/access.txt
-
 # Добавляем репозиторий MariaDB
 touch /etc/yum.repos.d/mariadb.repo
 echo '# MariaDB 10.6 CentOS repository list - created 2023-05-27 06:09 UTC'  >>/etc/yum.repos.d/mariadb.repo
@@ -41,6 +19,27 @@ echo '# gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d
 echo 'gpgkey = https://mirrors.xtom.de/mariadb/yum/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d/mariadb.repo
 echo 'gpgcheck = 1' >>/etc/yum.repos.d/mariadb.repo
 
+# Подготовка и Установка зависимостей
+yum -y update
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+yum -y install yum-utils
+yum-config-manager --disable 'remi-php*'
+yum-config-manager --enable remi-php81
+yum -y install httpd openssl wget curl mariadb php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
+
+#Переменные
+PASS=$(openssl rand -base64 8) #Пароль базы данных
+PASS2=$(openssl rand -base64 8) #Пароль пользователя
+mkdir -p /var/www/pterodactyl
+cd /var/www/pterodactyl
+touch /var/www/pretodactyl/access.txt
+echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/access.txt
+echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
+RN=$(( ( RANDOM % 100000 ) + 1 )) #Генератор чисел
+USER="user$RN" #Сам пользователь
+echo "Логин: $USER" >> /var/www/pterodactyl/access.txt
+echo "Пароль пользователя $USER: ${PASS2}" >> /var/www/pterodactyl/access.txt
 
 # Firewall настройка
 firewall-cmd --add-service=http --permanent
