@@ -76,7 +76,7 @@ curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
 chmod -R 755 storage/* bootstrap/cache
 cp .env.example .env
 export COMPOSER_ALLOW_SUPERUSER=1
-composer install --no-dev --optimize-autoloader
+COMPOSER_ROOT_VERSION=dev-main composer install --no-dev --optimize-autoloader
 php artisan key:generate --force
 
 # Настройка конфигурации и добавление данных в БД
