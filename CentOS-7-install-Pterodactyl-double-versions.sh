@@ -1,20 +1,28 @@
 #!/bin/bash
-#Переменные которые нужно изменять
-# Тут указать домен
-DOMAIN='' 
-# Тут нужно указывать email пользователя, без него к сожалению никак, он будет применяться как для автора так и для пользователя
-EMAIL=''
+echo "Введите домен который будет использовать панель: Пример test.com"
+read DOMAIN
+echo "Введите email который будет использовать пользователь: Пример admin@test.com"
+read EMAIL
+echo "Какую версию панели Pterodactyl установить?: Пока не работает"
+echo "1. Стабильная версия"
+echo "2. Последняя версия с оффициального репозитория"
+read choice
+mkdir -p /var/www/pterodactyl
+cd /var/www/pterodactyl
+touch /var/www/pretodactyl/access.txt
+if [ $choice -eq 1 ]; then
+  curl -Lo panel.tar.gz "https://github.com/<your_username>/pterodactyl/releases/download/v1.0.0/panel.tar.gz"
+else
+  curl -Lo panel.tar.gz "https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz"
+fi
 
-# Подготовка и Установка зависимостей
-yum -y update
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum -y install yum-utils
-yum-config-manager --disable 'remi-php*'
-yum-config-manager --enable remi-php81
-yum -y install httpd openssl wget curl php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix
-
-# Добавляем репозиторий MariaDB
+if [ -f panel.tar.gz ]; then
+  tar -xzvf panel.tar.gz  
+else
+  echo "Файл panel.tar.gz не скачался!"
+  exit 1
+fi
+# Добавление репозиториев MariaDB
 touch /etc/yum.repos.d/mariadb.repo
 echo '# MariaDB 10.6 CentOS repository list - created 2023-05-27 06:09 UTC'  >>/etc/yum.repos.d/mariadb.repo
 echo '# https://mariadb.org/download/'  >>/etc/yum.repos.d/mariadb.repo
@@ -27,15 +35,21 @@ echo 'module_hotfixes = 1' >>/etc/yum.repos.d/mariadb.repo
 echo '# gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d/mariadb.repo
 echo 'gpgkey = https://mirrors.xtom.de/mariadb/yum/RPM-GPG-KEY-MariaDB' >>/etc/yum.repos.d/mariadb.repo
 echo 'gpgcheck = 1' >>/etc/yum.repos.d/mariadb.repo
-
-yum install -y mariadb-server
+# Подготовка и Установка зависимостей
+yum -y update
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+yum -y install yum-utils && yum-config-manager --disable 'remi-php*' && yum-config-manager --enable remi-php81
+packages=$(httpd openssl mariadb-server wget curl php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix)
+yum -y install "${packages[@]}"
+if ! yum list installed "${packages[@]}"; then
+  echo "Не все пакеты установлены!" >&2
+  exit 1
+fi
 
 #Переменные
 PASS=$(openssl rand -base64 8) #Пароль базы данных
 PASS2=$(openssl rand -base64 8) #Пароль пользователя
-mkdir -p /var/www/pterodactyl
-cd /var/www/pterodactyl
-touch /var/www/pretodactyl/access.txt
 echo "Ссылка на панель: http://$DOMAIN" >> /var/www/pterodactyl/access.txt
 echo "Пароль от Базы данных panel и пользователя pterodactyl (Нужен на случай отладки базы данных): ${PASS}" >> /var/www/pterodactyl/access.txt
 RN=$(( ( RANDOM % 100000 ) + 1 )) #Генератор чисел
@@ -59,8 +73,6 @@ mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'localhost' W
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && ln /usr/local/bin/composer /usr/bin/composer
 
 # Скачивание и установка Pterodactyl
-curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz
-tar -xzvf panel.tar.gz
 chmod -R 755 storage/* bootstrap/cache
 cp .env.example .env
 export COMPOSER_ALLOW_SUPERUSER=1
