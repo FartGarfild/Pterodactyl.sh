@@ -40,7 +40,7 @@ yum -y update
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 yum -y install yum-utils && yum-config-manager --disable 'remi-php*' && yum-config-manager --enable remi-php81
-packages=$(httpd openssl mariadb-server wget curl php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix)
+packages=$(httpd openssl unzip mariadb-server wget curl php php-sodium php-cli php-common php-gd php-mbstring php-mysqlnd php-pdo php-xml php-zip php-tokenizer php-json php-curl php-openssl php-zlib php-bcmath php-posix)
 yum -y install "${packages[@]}"
 if ! yum list installed "${packages[@]}"; then
   echo "Не все пакеты установлены!" >&2
